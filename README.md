@@ -10,6 +10,6 @@ Also show small examples of how to easily integrate them in the tf.data.Dataset 
 | Dataset | Link | Images |
 | ------- | ---- | ------ |
 | MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) |
-| SVHN | [SVHN](http://ufldl.stanford.edu/housenumbers/) | ![svhn_thumb](images/svhm.png) |
+| SVHN | [SVHN](http://ufldl.stanford.edu/housenumbers/) | ![svhn_thumb](images/svhn.png) |
 
 
