@@ -9,6 +9,6 @@ Also show small examples of how to easily integrate them in the tf.data.Dataset 
 
 | Dataset | Link | Images |
 | ------- | ---- | ------ |
-| MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | Images |
+| MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) |
 
 
