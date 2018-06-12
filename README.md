@@ -7,9 +7,9 @@ Also show small examples of how to easily integrate them in the tf.data.Dataset 
 
 `load_datasets.ipynb` is the main notebook displaying examples of writing and loading TFRecords for the datasets. Currently available datasets are:
 
-| Dataset | Link | Images |
-| ------- | ---- | ------ |
-| MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) |
-| SVHN | [SVHN](http://ufldl.stanford.edu/housenumbers/) | ![svhn_thumb](images/svhn.png) |
+| Dataset | Link | Example | Preprocessed Data |
+| ------- | ---- | ------ | --- |
+| MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) | image, digit-class |
+| SVHN | [SVHN](http://ufldl.stanford.edu/housenumbers/) | ![svhn_thumb](images/svhn.png) | image, digit-class |
 
 
