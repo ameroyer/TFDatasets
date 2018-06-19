@@ -32,31 +32,35 @@ class SVHNConverter(Converter):
             print('Warning: Missing test data')
             self.test_data = None
 
-    def convert(self, tfrecords_path):
+    def convert(self, tfrecords_path, sort=True):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
         for name, data in [['train', self.train_data], 
                            ['val', self.val_data],
                            ['test', self.test_data]]:    
             if data is None:          
-                print('Warning: Missing %s data' % name)
                 continue
             # Read images
             mat = scipy.io.loadmat(data)
             images, labels = mat['X'], mat['y']
             num_items = labels.shape[0]
+            if sort:
+                labels_order = np.argsort(labels, axis=0)
+            else:
+                labels_order = range(num_items)
             writer_path = '%s_%s' % (tfrecords_path, name)
             writer = tf.python_io.TFRecordWriter(writer_path)
-            for x in range(num_items):
+            for x, index in enumerate(labels_order):
                 print('\rLoad %s: %d / %d' % (name, x + 1, num_items), end='')
                 # load
-                img = images[:, :, :, x]
+                img = images[:, :, :, index]
                 img = img.astype(np.uint8)
-                class_id = int(labels[x, 0])
+                class_id = int(labels[index, 0])
                 class_id = 0 if class_id == 10 else class_id
                 # write
                 example = tf.train.Example(features=tf.train.Features(feature={
                     'class': _int64_feature([class_id]),
-                    'image': _bytes_feature([img.tostring()])}))
+                    'image': _bytes_feature([img.tostring()]),
+                    'id': _int64_feature([index])}))
                 writer.write(example.SerializeToString())
             writer.close()
             print('\nWrote %s in file %s' % (name, writer_path))
@@ -73,7 +77,8 @@ class SVHNLoader():
         """tf.data.Dataset parsing function."""
         # Basic features
         features = {'class': tf.FixedLenFeature((), tf.int64),
-                    'image': tf.FixedLenFeature((), tf.string)}      
+                    'image': tf.FixedLenFeature((), tf.string),
+                    'id': tf.FixedLenFeature((), tf.int64)}      
         parsed_features = tf.parse_single_example(example_proto, features)  
         image = tf.decode_raw(parsed_features['image'], tf.uint8)
         image = tf.reshape(image, (32, 32, 3))
@@ -81,4 +86,5 @@ class SVHNLoader():
         if self.image_resize is not None:
             image = tf.image.resize_images(image, (self.image_resize, self.image_resize))
         class_id = tf.to_int32(parsed_features['class'])
-        return {'image': image, 'class': class_id}
+        index = tf.to_int32(parsed_features['id'])
+        return {'image': image, 'class': class_id, 'id': index}
