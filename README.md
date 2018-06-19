@@ -3,6 +3,7 @@
 A set of scripts to convert various Computer Vision datasets to TFRecords.
 Also show small examples of how to easily integrate them in the tf.data.Dataset pipeline (TF 1.4+)
 
+---
 
 ### General API
 **Note:** this code was tested with Python 3+ and tensorflow 1.4+
@@ -17,6 +18,7 @@ The converter contains one method, `convert` that generates the TFRecords in the
 #### Loader
 The loader simply builds a proper parsing function to extract data from the TFRecords and format it correctly. Such a function can then be passed to the `tf.data.Dataset` API map function.
 
+---
 
 ### Table of Contents
 
