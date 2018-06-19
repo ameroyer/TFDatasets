@@ -32,7 +32,7 @@ class MNISTConverter(Converter):
             self.test_images = None
             self.test_labels = None
 
-    def convert(self, tfrecords_path, sort=True):
+    def convert(self, tfrecords_path, sort=False):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`
         If `sort` is True, the Example will be sorted by class in the final TFRecords.
         """

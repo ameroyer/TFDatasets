@@ -10,10 +10,6 @@ from .tfrecords_utils import Converter, _bytes_feature, _floats_feature, _int64_
 import tensorflow as tf
 
 
-def read_integer(bytel):
-    return int('0x' + ''.join('{:02x}'.format(x) for x in bytel), 0)
-
-
 class SVHNConverter(Converter):
     
     def __init__(self, data_dir):
@@ -32,7 +28,7 @@ class SVHNConverter(Converter):
             print('Warning: Missing test data')
             self.test_data = None
 
-    def convert(self, tfrecords_path, sort=True):
+    def convert(self, tfrecords_path, sort=False):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
         for name, data in [['train', self.train_data], 
                            ['val', self.val_data],
