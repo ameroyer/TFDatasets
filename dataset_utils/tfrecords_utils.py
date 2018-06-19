@@ -19,7 +19,7 @@ class Converter(ABC):
         pass
     
     @abstractmethod
-    def convert(self, tfrecords_path):
+    def convert(self, tfrecords_path, sort=True):
         pass
     
 ### Base loader class

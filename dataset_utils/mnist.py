@@ -32,8 +32,10 @@ class MNISTConverter(Converter):
             self.test_images = None
             self.test_labels = None
 
-    def convert(self, tfrecords_path):
-        """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
+    def convert(self, tfrecords_path, sort=True):
+        """Convert the dataset in TFRecords saved in the given `tfrecords_path`
+        If `sort` is True, the Example will be sorted by class in the final TFRecords.
+        """
         for name, images, labels in [['train', self.train_images, self.train_labels], 
                                      ['test', self.test_images, self.test_labels]]:    
             if images is None or labels is None:          
@@ -49,22 +51,30 @@ class MNISTConverter(Converter):
             # Read labels
             with codecs.open(labels, 'r', 'latin-1') as f:
                 blockLabels = list(bytearray(f.read(), 'latin-1'))[8:]
+            # Sort labels by increasing class
+            if sort:
+                labels_order = np.argsort(blockLabels)
+            else:
+                labels_order = range(num_items)
             # Parse
             writer_path = '%s_%s' % (tfrecords_path, name)
             writer = tf.python_io.TFRecordWriter(writer_path)
-            step = 16
-            for x in range(num_items):
+            offset = 16
+            num_pixels = num_rows * num_columns
+            for x, index in enumerate(labels_order):
                 print('\rLoad %s: %d / %d' % (name, x + 1, num_items), end='')
                 # load
-                next_step = step + num_rows * num_columns
-                img = np.array(block[step : next_step]).reshape((num_rows, num_columns))
+                step = offset + index * num_pixels
+                next_step = step + num_pixels
+                img = np.array(block[step:next_step]).reshape((num_rows, num_columns))
                 img = img.astype(np.uint8)
-                class_id = blockLabels[x]
+                class_id = blockLabels[index]
                 step = next_step
                 # write
                 example = tf.train.Example(features=tf.train.Features(feature={
                     'class': _int64_feature([class_id]),
-                    'image': _bytes_feature([img.tostring()])}))
+                    'image': _bytes_feature([img.tostring()]),
+                    'id': _int64_feature([index])}))                
                 writer.write(example.SerializeToString())
             writer.close()
             print('\nWrote %s in file %s' % (name, writer_path))
@@ -81,7 +91,8 @@ class MNISTLoader():
         """tf.data.Dataset parsing function."""
         # Basic features
         features = {'class': tf.FixedLenFeature((), tf.int64),
-                    'image': tf.FixedLenFeature((), tf.string)}      
+                    'image': tf.FixedLenFeature((), tf.string),
+                    'id': tf.FixedLenFeature((), tf.int64)}      
         parsed_features = tf.parse_single_example(example_proto, features)  
         image = tf.decode_raw(parsed_features['image'], tf.uint8)
         image = tf.reshape(image, (28, 28, 1))
@@ -89,4 +100,5 @@ class MNISTLoader():
         if self.image_resize is not None:
             image = tf.image.resize_images(image, (self.image_resize, self.image_resize))
         class_id = tf.to_int32(parsed_features['class'])
-        return {'image': image, 'class': class_id}
+        index = tf.to_int32(parsed_features['id'])
+        return {'image': image, 'class': class_id, 'id': index}
