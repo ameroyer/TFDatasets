@@ -92,7 +92,7 @@ class CartoonSetConverter(Converter):
                     writer.write(example.SerializeToString())
             writer.close()
             print('\nWrote %s in file %s' % (name, writer_path))
-            print()
+        print()
             
             
 class CartoonSetLoader():
@@ -103,7 +103,8 @@ class CartoonSetLoader():
                  crop_images=False, 
                  keep_crop_aspect_ratio=True, 
                  resize=None,
-                 one_hot_attributes=False):
+                 one_hot_attributes=False,
+                 verbose=False):
         """Init a Loader object.
         
         
@@ -122,6 +123,7 @@ class CartoonSetLoader():
         self.keep_crop_aspect_ratio = keep_crop_aspect_ratio
         self.image_resize = resize
         self.one_hot_attributes = one_hot_attributes
+        self.verbose=verbose
     
     def parsing_fn(self, example_proto):
         """tf.data.Dataset parsing function."""
@@ -153,7 +155,7 @@ class CartoonSetLoader():
             image = tf.decode_raw(parsed_features['image'], tf.uint8)
         else:
             filename = tf.decode_base64(parsed_features['image'])
-            parsed_features['image_path'] = filename
+            parsed_features['image_path'] = tf.identity(filename, name='image_path')
             image = tf.read_file(self.data_dir + filename)
             image = tf.image.decode_png(image, channels=4)
             image = image[:, :, :3]
@@ -177,7 +179,7 @@ class CartoonSetLoader():
         # Resize image
         if self.image_resize is not None:
             image = tf.image.resize_images(image, (self.image_resize, self.image_resize))  
-        parsed_features['image'] = image
+        parsed_features['image'] = tf.identity(image, name='image')
         # One-hot encode each attribute
         if self.one_hot_attributes:
             for key, num_values in [('chin_length', 3),
@@ -198,6 +200,10 @@ class CartoonSetLoader():
                                     ('glasses_color', 7),
                                     ('hair', 111),
                                     ('hair_color', 10)]:
-                parsed_features[key] = tf.one_hot(parsed_features[key], num_values, axis=-1)
+                parsed_features[key] = tf.one_hot(parsed_features[key], num_values, axis=-1, name='one_hot_%s' % key)
         # Return
+        if self.verbose:
+            print('\u001b[36mOutputs:\u001b[0m')
+            print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, parsed_features[key]) 
+                            for key in sorted(parsed_features.keys())))
         return parsed_features

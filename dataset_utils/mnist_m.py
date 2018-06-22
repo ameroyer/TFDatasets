@@ -71,9 +71,10 @@ class MNISTMConverter(Converter):
             
 class MNISTMLoader():
     
-    def __init__(self, resize=None):
+    def __init__(self, resize=None, verbose=False):
         """Init a Loader object. Loaded images will be resized to size `resize`."""
         self.image_resize = resize
+        self.verbose = verbose
     
     def parsing_fn(self, example_proto):
         """tf.data.Dataset parsing function."""
@@ -87,6 +88,11 @@ class MNISTMLoader():
         image = tf.image.convert_image_dtype(image, tf.float32)
         if self.image_resize is not None:
             image = tf.image.resize_images(image, (self.image_resize, self.image_resize))
-        class_id = tf.to_int32(parsed_features['class'])
-        index = tf.to_int32(parsed_features['id'])
-        return {'image': image, 'class': class_id, 'id': index}
+        image = tf.identity(image, name='image')
+        class_id = tf.to_int32(parsed_features['class'], name='class_label')
+        index = tf.to_int32(parsed_features['id'], name='index')
+        output = {'image': image, 'class': class_id, 'id': index}
+        if self.verbose:
+            print('\u001b[36mOutputs:\u001b[0m')
+            print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, output[key]) for key in sorted(output.keys())))
+        return output
