@@ -123,7 +123,7 @@ class CartoonSetLoader():
         self.keep_crop_aspect_ratio = keep_crop_aspect_ratio
         self.image_resize = resize
         self.one_hot_attributes = one_hot_attributes
-        self.verbose=verbose
+        self.verbose = verbose
     
     def parsing_fn(self, example_proto):
         """tf.data.Dataset parsing function."""
