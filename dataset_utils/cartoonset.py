@@ -34,6 +34,8 @@ class CartoonSetConverter(Converter):
         """Initialize the object for the CartoonSet dataset in `data_dir`"""
         self.data_dir = data_dir
         self.folders = [x for x in sorted(os.listdir(data_dir)) if x.isdigit()]
+        if len(self.folders) == 0:
+            self.folders = ['']
         print('Found %d data folders:' % len(self.folders))
         print('\n'.join('  %s' % os.path.join(data_dir, x) for x in self.folders))
 

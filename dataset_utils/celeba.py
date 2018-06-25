@@ -17,9 +17,10 @@ def load_bounding_boxes(file_path):
     with open(file_path, 'r') as f:
         for line in f.read().splitlines()[2:]:
             path, xmin, ymin, width, height = line.split()
-            annots[path] = np.array([float(ymin), float(xmin), 
-                                     float(ymin) + float(height),
-                                     float(xmin) + float(width)])
+            annots[path] = np.array([float(xmin), 
+                                     float(ymin), 
+                                     float(xmin) + float(width),
+                                     float(ymin) + float(height)])
     return annots
 
 
@@ -92,7 +93,7 @@ class CelebaConverter(Converter):
                     feature['image'] = _bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
                 # Bounding Box (in [0, 1])
                 if self.bounding_boxes is not None:
-                    bounding_box = self.bounding_boxes[path] / np.array([height, width, height, width])
+                    bounding_box = self.bounding_boxes[path] / np.array([width, height, width, height])
                     feature['bounding_box'] = _floats_feature(bounding_box)
                 # Attributes (in {-1, 1})
                 feature['attributes'] = _floats_feature(self.attributes[path])
