@@ -34,5 +34,6 @@ The loader simply builds a proper parsing function to extract data from the TFRe
 | CartoonSet | [CartoonSet](https://google.github.io/cartoonset/) | ![cartoonset_thumb](images/cartoonset.png) | image, bounding-box, attributes |
 | MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) | image, digit-class, index |
 | MNIST-M | [MNIST-M](http://yaroslav.ganin.net/) | ![mnistm_thumb](images/mnistm.png) | image, digit-class, index |
+| PACS | [PACS](http://www.eecs.qmul.ac.uk/~dl307/project_iccv2017) | ![pacs_thumb](images/pacs.png) | image, content-class, style-class |
 | SVHN | [SVHN](http://ufldl.stanford.edu/housenumbers/) | ![svhn_thumb](images/svhn.png) | image, digit-class, index |
-| VisDA | [VISDA](http://ai.bu.edu/visda-2017/) | ![visda_thumb](images/visda.png) | image, class |
+| VisDA | [VisDA](http://ai.bu.edu/visda-2017/) | ![visda_thumb](images/visda.png) | image, class |
