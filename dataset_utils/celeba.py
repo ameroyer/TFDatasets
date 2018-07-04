@@ -89,6 +89,8 @@ class CelebaConverter(Converter):
                 height, width = img.shape[:2]
                 if save_image_in_records:
                     feature['image'] = _bytes_feature([img.astype(np.uint8).tostring()])
+                    feature['width'] = _int64_feature([img.shape[0]])
+                    feature['height'] = _int64_feature([img.shape[1]])
                 else:
                     feature['image'] = _bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
                 # Bounding Box (in [0, 1])
@@ -144,12 +146,16 @@ class CelebaLoader():
         features = {'image' : tf.FixedLenFeature((), tf.string),
                     'bounding_box': tf.FixedLenFeature((4,), tf.float32, default_value=tf.constant([0., 0., 1., 1.])),
                     'attributes': tf.FixedLenFeature((40,), tf.float32),
-                    'landmarks': tf.FixedLenFeature((5, 2), tf.float32)
+                    'landmarks': tf.FixedLenFeature((5, 2), tf.float32),
+                    'height': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64)),
+                    'width': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64))
                    }     
         parsed_features = tf.parse_single_example(example_proto, features)   
         # Load image
         if self.save_image_in_records: 
             image = tf.decode_raw(parsed_features['image'], tf.uint8)
+            shape = tf.stack([parsed_features['width'], parsed_features['height'], 3], axis=0)
+            image = tf.reshape(image, shape)
         else:
             filename = tf.decode_base64(parsed_features['image'])
             parsed_features['image_path'] = tf.identity(filename, name='image_path')
@@ -163,6 +169,8 @@ class CelebaLoader():
         # Attributes to Boolean
         parsed_features['attributes'] = tf.greater(parsed_features['attributes'], 0., name='attributes')
         # Return
+        del parsed_features['height']
+        del parsed_features['width']
         if self.verbose:
             print('\u001b[36mOutputs:\u001b[0m')
             print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, parsed_features[key]) 

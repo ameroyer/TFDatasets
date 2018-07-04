@@ -125,6 +125,7 @@ class VisdaClassificationLoader():
         parsed_features['image'] = tf.identity(image, name='image')
         # Class
         parsed_features['class'] = tf.to_int32(parsed_features['class'], name='class')
+        # Return
         del parsed_features['height']
         del parsed_features['width']
         if self.verbose:
