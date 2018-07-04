@@ -59,7 +59,11 @@ class VisdaClassificationConverter(Converter):
                 image_path = aux[0]
                 if save_image_in_records:
                     img = mpimg.imread(os.path.join(self.data_dir, image_path))
+                    if name == 'train':
+                        img = img * 255.
                     feature['image'] = _bytes_feature([img.astype(np.uint8).tostring()])
+                    feature['width'] = _int64_feature([img.shape[0]])
+                    feature['height'] = _int64_feature([img.shape[1]])
                 else:
                     feature['image'] = _bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
                 # Class
@@ -99,12 +103,16 @@ class VisdaClassificationLoader():
         """tf.data.Dataset parsing function."""
         # Basic features
         features = {'image' : tf.FixedLenFeature((), tf.string),
-                    'class': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64))
+                    'class': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64)),
+                    'height': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64)),
+                    'width': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64))
                    }     
         parsed_features = tf.parse_single_example(example_proto, features)   
         # Load image
         if self.save_image_in_records: 
             image = tf.decode_raw(parsed_features['image'], tf.uint8)
+            shape = tf.stack([parsed_features['width'], parsed_features['height'], 3], axis=0)
+            image = tf.reshape(image, shape)
         else:
             filename = tf.decode_base64(parsed_features['image'])
             parsed_features['image_path'] = tf.identity(filename, name='image_path')
@@ -116,5 +124,11 @@ class VisdaClassificationLoader():
             image = tf.image.resize_images(image, (self.image_resize, self.image_resize))  
         parsed_features['image'] = tf.identity(image, name='image')
         # Class
-        parsed_features['class'] = tf.to_int32(parsed_features['class'])
+        parsed_features['class'] = tf.to_int32(parsed_features['class'], name='class')
+        del parsed_features['height']
+        del parsed_features['width']
+        if self.verbose:
+            print('\u001b[36mOutputs:\u001b[0m')
+            print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, parsed_features[key]) 
+                            for key in sorted(parsed_features.keys())))
         return parsed_features
