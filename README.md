@@ -29,3 +29,4 @@ The loader simply builds a proper parsing function to extract data from the TFRe
 | MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) | image, digit-class, index |
 | MNIST-M | [MNIST-M](http://yaroslav.ganin.net/) | ![mnistm_thumb](images/mnistm.png) | image, digit-class, index |
 | SVHN | [SVHN](http://ufldl.stanford.edu/housenumbers/) | ![svhn_thumb](images/svhn.png) | image, digit-class, index |
+| VisDA | [VISDA](http://ai.bu.edu/visda-2017/) | ![visda_thumb](images/visda.png) | image, class |
