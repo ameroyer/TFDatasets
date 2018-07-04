@@ -22,7 +22,7 @@ The loader simply builds a proper parsing function to extract data from the TFRe
 
 ### Table of Contents
 
-| Dataset | Link | Example | Preprocessed Data |
+| Dataset | Link | Example | TFRecords contents |
 | ------- | ---- | ------ | --- |
 | CelebA | [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) | ![celeba_thumb](images/celeba.png) | image, bounding-box, attributes, landmarks |
 | CartoonSet | [CartoonSet](https://google.github.io/cartoonset/) | ![cartoonset_thumb](images/cartoonset.png) | image, bounding-box, attributes |
