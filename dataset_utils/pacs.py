@@ -105,9 +105,9 @@ class PACSConverter(Converter):
                         # Class
                         feature['class_style'] = _int64_feature([s])
                         feature['class_content'] = _int64_feature([c])
-                    # Write
-                    example = tf.train.Example(features=tf.train.Features(feature=feature))
-                    writer.write(example.SerializeToString())
+                        # Write
+                        example = tf.train.Example(features=tf.train.Features(feature=feature))
+                        writer.write(example.SerializeToString())
                 if separate_styles:
                     writer.close()
                     print('\nWrote %s for style %s in file %s' % (name, style_names[s], writer_path))
