@@ -42,4 +42,5 @@ The loader simply builds a proper parsing function to extract data from the TFRe
 | M2NIST | [M2NIST](https://www.kaggle.com/farhanhubble/multimnistm2nist/home) | ![m2nist_thumb](images/m2nist.png) | image, segmentation-mask, index |
 | PACS | [PACS](http://www.eecs.qmul.ac.uk/~dl307/project_iccv2017) | ![pacs_thumb](images/pacs.png) | image, content-class, style-class |
 | SVHN | [SVHN](http://ufldl.stanford.edu/housenumbers/) | ![svhn_thumb](images/svhn.png) | image, digit-class, index |
+| Tiny ImageNet | [Tiny ImageNet](https://tiny-imagenet.herokuapp.com/) | ![tiny_imagenet_thumb](images/tiny_imagenet.png) | image, class, class-name, bounding-box |
 | VisDA | [VisDA](http://ai.bu.edu/visda-2017/) | ![visda_thumb](images/visda.png) | image, class |

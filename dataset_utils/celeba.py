@@ -130,11 +130,11 @@ class CelebaLoader():
         
         Args:
             `save_image_in_records` (bool): If True, the image was saved in the record, otherwise only the image path was.
-            `data_dir` (str): If save_image_in_records is False, append this string to the image_path saved in the record.
+            `image_dir` (str): If save_image_in_records is False, append this string to the image_path saved in the record.
             `crop_images` (bool): If True, the image is cropped to the bounding box (remove transparent pixels)
             `keep_crop_aspect_ratio` (bool): If True, the cropping operation additionally pads the image to preserve 
                 the original ratio if necessary
-            `resize` (int): If given, resize the image to the given size
+            `image_size` (int): If given, resize the image to the given size
         """
         self.save_image_in_records = save_image_in_records
         self.image_dir = image_dir

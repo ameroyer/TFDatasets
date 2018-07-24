@@ -24,7 +24,7 @@ def get_image_alpha_crop(image_path):
     ymin = np.amin(transparent[1])
     xmax = np.amax(transparent[0])
     ymax = np.amax(transparent[1])
-    bbox = np.array([xmin / w, ymin / h, xmax / w, ymax /h], dtype=np.float32)
+    bbox = np.array([xmin / w, ymin / h, xmax / w, ymax / h], dtype=np.float32)
     return img, bbox
 
 
@@ -107,8 +107,7 @@ class CartoonSetLoader():
                  image_size=None,
                  one_hot_attributes=False,
                  verbose=False):
-        """Init a Loader object.
-        
+        """Init a Loader object.        
         
         Args:
             `save_image_in_records` (bool): If True, the image was saved in the record, otherwise only the image path was.
