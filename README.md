@@ -32,10 +32,11 @@ The loader simply builds a proper parsing function to extract data from the TFRe
 ### Table of Contents
 
 | Dataset | Link | Example | TFRecords contents |
-| ------- | ---- | ------ | --- |
+| :-----: | :--: | :-----: | :----------------: |
 | ACwS | [Apparel Classification with Style](http://www.vision.ee.ethz.ch/~lbossard/projects/accv12/index.html) | ![acws_thumb](images/acws.png) | image, class |
 | CelebA | [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) | ![celeba_thumb](images/celeba.png) | image, bounding-box, attributes, landmarks |
 | CartoonSet | [CartoonSet](https://google.github.io/cartoonset/) | ![cartoonset_thumb](images/cartoonset.png) | image, bounding-box, attributes |
+| CIFAR-10 | [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html) | ![cifar10_thumb](images/cifar10.png) | image, class, class-name |
 | Fashion MNIST| [Fashion MNIST](https://github.com/zalandoresearch/fashion-mnist) | ![fashion_mnist_thumb](images/fashion_mnist.png) | image, class, index|
 | MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) | image, digit-class, index |
 | MNIST-M | [MNIST-M](http://yaroslav.ganin.net/) | ![mnistm_thumb](images/mnistm.png) | image, digit-class, index |

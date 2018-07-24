@@ -4,7 +4,6 @@ from __future__ import print_function
 # http://www.vision.ee.ethz.ch/~lbossard/projects/accv12/index.html #
 #####################################################################
 import base64
-import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg

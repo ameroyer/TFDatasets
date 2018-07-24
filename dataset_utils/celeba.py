@@ -4,7 +4,6 @@ from __future__ import print_function
 # http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html #
 ####################################################
 import base64
-import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg

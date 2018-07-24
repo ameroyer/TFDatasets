@@ -4,12 +4,12 @@ from __future__ import print_function
 # http://ai.bu.edu/visda-2017/ #
 ################################
 import base64
-import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg
-from .tfrecords_utils import *
 import tensorflow as tf
+
+from .tfrecords_utils import *
 
 
 class VisdaClassificationConverter(Converter):

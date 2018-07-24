@@ -4,7 +4,6 @@ from __future__ import print_function
 # https://tiny-imagenet.herokuapp.com/ #
 ########################################
 import base64
-import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg
@@ -117,9 +116,10 @@ class TinyImageNetLoader():
         """tf.data.Dataset parsing function."""
         # Basic features
         features = {'image' : tf.FixedLenFeature((), tf.string),
-                    'class': tf.FixedLenFeature((), tf.int64),
-                    'class_str': tf.FixedLenFeature((), tf.string),
-                    'bounding_box': tf.FixedLenFeature((4,), tf.float32),
+                    'class': tf.FixedLenFeature((), tf.int64, default_value=-1),
+                    'class_str': tf.FixedLenFeature((), tf.string, default_value=''),
+                    'bounding_box': tf.FixedLenFeature((4,), tf.float32, 
+                                                       default_value=tf.constant([0., 0., 1., 1.], dtype=tf.float32)),
                     'height': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64)),
                     'width': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64))
                    }     
