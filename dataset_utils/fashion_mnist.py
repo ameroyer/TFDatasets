@@ -1,8 +1,8 @@
 from __future__ import print_function
-#####################################
-#           MNIST dataset           #
-# http://yann.lecun.com/exdb/mnist/ #
-#####################################
+####################################################
+#              Fashion MNIST dataset               #
+# https://github.com/zalandoresearch/fashion-mnist #
+####################################################
 import codecs
 import os
 import numpy as np

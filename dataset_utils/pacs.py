@@ -159,8 +159,6 @@ class PACSLoader():
         # Class
         parsed_features['class_content'] = tf.to_int32(parsed_features['class_content'])
         parsed_features['class_style'] = tf.to_int32(parsed_features['class_style'])
-        if self.verbose:
-            print('\u001b[36mOutputs:\u001b[0m')
-            print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, parsed_features[key]) 
-                            for key in sorted(parsed_features.keys())))
+        # Return
+        if self.verbose: print_records(parsed_features)
         return parsed_features

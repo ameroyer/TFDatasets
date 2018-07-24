@@ -33,6 +33,7 @@ The loader simply builds a proper parsing function to extract data from the TFRe
 
 | Dataset | Link | Example | TFRecords contents |
 | ------- | ---- | ------ | --- |
+| ACwS | [Apparel Classification with Style](http://www.vision.ee.ethz.ch/~lbossard/projects/accv12/index.html) | ![acws_thumb](images/acws.png) | image, class |
 | CelebA | [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) | ![celeba_thumb](images/celeba.png) | image, bounding-box, attributes, landmarks |
 | CartoonSet | [CartoonSet](https://google.github.io/cartoonset/) | ![cartoonset_thumb](images/cartoonset.png) | image, bounding-box, attributes |
 | Fashion MNIST| [Fashion MNIST](https://github.com/zalandoresearch/fashion-mnist) | ![fashion_mnist_thumb](images/fashion_mnist.png) | image, class, index|
