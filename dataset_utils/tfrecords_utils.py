@@ -33,15 +33,6 @@ def get_tf_dataset(path_to_tfrecords, parsing_fn, shuffle_buffer=1, batch_size=8
     return in_
 
 
-def get_one_batch(tfrecords_path, parsing_fn, batch_size=8, shuffle_buffer=1):
-    """Return one batch in the created Tensorflow dataset"""
-    with tf.Graph().as_default():
-        data = get_tf_dataset(tfrecords_path, parsing_fn, batch_size=batch_size, shuffle_buffer=shuffle_buffer)
-        with tf.Session() as sess:
-            data_ = sess.run(data)
-            return data_
-        
-
 def decode_raw_image(feature, shape, image_size=None):
     """Decode raw image
     Args:
@@ -59,16 +50,15 @@ def decode_raw_image(feature, shape, image_size=None):
     return image
 
 
-def decode_relative_image(feature, image_dir, image_size=None):
+def decode_relative_image(filename, image_dir, image_size=None):
     """Decode image from a filename
     Args:
-        feature: image path as a tf.String tensor
+        feature: image path as a tf.String tensor (decoded)
         image_dir: Base image dir
         image_size: If given, resize the decoded image to the given square size
     Returns:
         The resized image
     """
-    filename = tf.decode_base64(feature)
     image = tf.read_file(image_dir + filename)
     image = tf.image.decode_png(image, channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
@@ -76,11 +66,27 @@ def decode_relative_image(feature, image_dir, image_size=None):
         image = tf.image.resize_images(image, (image_size, image_size))
     return image
 
+
 def print_records(records_dict):
     """Print a dictionnary for verbose mode"""
     print('\u001b[36mOutputs:\u001b[0m')
     print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, records_dict[key]) 
                     for key in sorted(records_dict.keys())))
+    
+    
+def make_square_bounding_box(bounding_box, mode='max'):
+    """Given a bounding box [ymin, xmin, ymax, xmax] in [0., 1.], compute a square bounding box centered around it,
+    whose side is equal to the maximum or minimum side
+    """
+    assert mode in ['max', 'min']
+    width = bounding_box[2] - bounding_box[0]
+    height = bounding_box[3] - bounding_box[1]
+    size = tf.maximum(width, height) if mode == 'max' else  tf.minimum(width, height)
+    offset_x = (size - width) / 2.
+    offset_y = (size - height) / 2.
+    offset = tf.stack([- offset_x, - offset_y, offset_x, offset_y], axis=0)
+    return bounding_box + offset
+        
 
 ### Base converter class
 class Converter(ABC):

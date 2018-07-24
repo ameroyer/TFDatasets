@@ -18,11 +18,13 @@ class PACSConverter(Converter):
         """Initialize the object for the PACS dataset in `data_dir`"""
         self.data_dir = data_dir
         self.raw_data = [[[] for _ in range(7)] for _ in range(4)]
+        # For each style (4)
         for i, style in enumerate(['art_painting', 'cartoon', 'photo', 'sketch']):
             style_dir = os.path.join(self.data_dir, style)
             if not os.path.exists(style_dir):
                 print('Warning: no directory found for style %s' % style)
                 continue
+            # For each class (7)
             for j, content in enumerate(['dog', 'elephant', 'giraffe', 'guitar', 'horse', 'house', 'person']):
                 content_dir = os.path.join(self.data_dir, style, content)
                 if not os.path.exists(content_dir):
@@ -44,11 +46,9 @@ class PACSConverter(Converter):
         self.val_data = [[[] for _ in range(7)] for _ in range(4)]
         self.test_data = [[[] for _ in range(7)] for _ in range(4)]
         # Uniform split
-        ok = 0
         for style, d in enumerate(self.raw_data):            
             for content, image_paths in enumerate(d):
                 n = len(image_paths)
-                ok += n
                 train_fence = int(n * train)
                 val_fence = train_fence + int(n * val)
                 paths = np.array(image_paths)
@@ -71,6 +71,7 @@ class PACSConverter(Converter):
 
     def convert(self, tfrecords_path, save_image_in_records=False, separate_styles=False):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
+        # If no split has been generated, then convert the full data
         if self.has_generated_split:
             data = zip(['train', 'val', 'test'], [self.train_data, self.val_data, self.test_data])
         else:
@@ -123,8 +124,8 @@ class PACSLoader():
     
     def __init__(self,
                  save_image_in_records=False, 
-                 data_dir='',
-                 resize=None,
+                 image_dir='',
+                 image_size=None,
                  verbose=False):
         """Init a Loader object.
         
@@ -135,8 +136,8 @@ class PACSLoader():
             `resize` (int): If given, resize the image to the given size
         """
         self.save_image_in_records = save_image_in_records
-        self.data_dir = data_dir
-        self.image_resize = resize
+        self.image_dir = image_dir
+        self.image_size = image_size
         self.verbose = verbose
     
     def parsing_fn(self, example_proto):
@@ -149,17 +150,11 @@ class PACSLoader():
         parsed_features = tf.parse_single_example(example_proto, features)   
         # Load image
         if self.save_image_in_records: 
-            image = tf.decode_raw(parsed_features['image'], tf.uint8)
+            image = decode_raw_image(parsed_features['image'], (227, 227, 3), image_size=self.image_size)
         else:
             filename = tf.decode_base64(parsed_features['image'])
             parsed_features['image_path'] = tf.identity(filename, name='image_path')
-            image = tf.read_file(self.data_dir + filename)
-            image = tf.image.decode_image(image, channels=3)  
-        image = tf.reshape(image, (227, 227, -1))[:, :, :3]          
-        image = tf.image.convert_image_dtype(image, tf.float32)
-        # Resize image
-        if self.image_resize is not None:
-            image = tf.image.resize_images(image, (self.image_resize, self.image_resize))  
+            image = decode_relative_image(filename, self.image_dir, image_size=self.image_size)
         parsed_features['image'] = tf.identity(image, name='image')
         # Class
         parsed_features['class_content'] = tf.to_int32(parsed_features['class_content'])

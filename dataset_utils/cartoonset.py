@@ -46,7 +46,7 @@ class CartoonSetConverter(Converter):
                 test_split=[8, 9],
                 save_image_in_records=False):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
-        # assert set do not overlap
+        # assert sets do not overlap
         set_train_split = set(train_split)
         set_val_split = set(val_split)
         set_test_split = set(test_split)
@@ -75,7 +75,7 @@ class CartoonSetConverter(Converter):
                     full_image_path = os.path.join(self.data_dir, folder, image_path)
                     if save_image_in_records:
                         img, bbox = get_image_alpha_crop(full_image_path)
-                        img =(img[:, :, :3] * 255.).astype(np.uint8)
+                        img = (img[:, :, :3] * 255.).astype(np.uint8)
                         feature['image'] = bytes_feature([img.tostring()])
                     else:
                         _, bbox = get_image_alpha_crop(full_image_path)
@@ -101,10 +101,10 @@ class CartoonSetLoader():
     
     def __init__(self,
                  save_image_in_records=False, 
-                 data_dir='',
+                 image_dir='',
                  crop_images=False, 
                  keep_crop_aspect_ratio=True, 
-                 resize=None,
+                 image_size=None,
                  one_hot_attributes=False,
                  verbose=False):
         """Init a Loader object.
@@ -112,18 +112,18 @@ class CartoonSetLoader():
         
         Args:
             `save_image_in_records` (bool): If True, the image was saved in the record, otherwise only the image path was.
-            `data_dir` (str): If save_image_in_records is False, append this string to the image_path saved in the record.
+            `image_dir` (str): If save_image_in_records is False, append this string to the image_path saved in the record.
             `crop_images` (bool): If True, the image is cropped to the bounding box (remove transparent pixels)
             `keep_crop_aspect_ratio` (bool): If True, the cropping operation additionally pads the image to preserve 
                 the original ratio if necessary
-            `resize` (int): If given, resize the image to the given size
+            `image_size` (int): If given, resize the image to the given size
             `one_hot_attributes`: If True, the attributes are one-hot encoded
         """
         self.save_image_in_records = save_image_in_records
-        self.data_dir = data_dir
+        self.image_dir = image_dir
         self.crop_images = crop_images
         self.keep_crop_aspect_ratio = keep_crop_aspect_ratio
-        self.image_resize = resize
+        self.image_size = image_size
         self.one_hot_attributes = one_hot_attributes
         self.verbose = verbose
     
@@ -154,33 +154,22 @@ class CartoonSetLoader():
         parsed_features = tf.parse_single_example(example_proto, features)   
         # Load image
         if self.save_image_in_records: 
-            image = tf.decode_raw(parsed_features['image'], tf.uint8)
+            image = decode_raw_image(parsed_features['image'], (500, 500, 3), image_size=None)
         else:
             filename = tf.decode_base64(parsed_features['image'])
             parsed_features['image_path'] = tf.identity(filename, name='image_path')
-            image = tf.read_file(self.data_dir + filename)
-            image = tf.image.decode_png(image, channels=4)
-            image = image[:, :, :3]
-        image = tf.reshape(image, (500, 500, 3))
-        image = tf.image.convert_image_dtype(image, tf.float32)
+            image = decode_relative_image(filename, self.image_dir, image_size=None)
         # Crop image
         if self.crop_images:
             bounding_box = parsed_features['bounding_box']
-            if self.keep_crop_aspect_ratio:                
-                width = bounding_box[2] - bounding_box[0]
-                height = bounding_box[3] - bounding_box[1]
-                size = tf.maximum(width, height)
-                offset_x = (size - width) / 2.
-                offset_y = (size - height) / 2.
-                offset = tf.stack([- offset_x, - offset_y, offset_x, offset_y], axis=0)
-                bounding_box += offset
-            image = tf.image.crop_and_resize(tf.expand_dims(image, axis=0),
-                                             tf.expand_dims(bounding_box, axis=0),
-                                             [0], (500, 500))[0]
+            if self.keep_crop_aspect_ratio: 
+                bounding_box = make_square_bounding_box(bounding_box, mode='max')
+            image = tf.image.crop_and_resize(
+                tf.expand_dims(image, axis=0), tf.expand_dims(bounding_box, axis=0), [0], (500, 500))[0]
             del parsed_features['bounding_box']
-        # Resize image
-        if self.image_resize is not None:
-            image = tf.image.resize_images(image, (self.image_resize, self.image_resize))  
+        # Resize image after cropping
+        if self.image_size is not None:
+            image = tf.image.resize_images(image, (self.image_size, self.image_size))  
         parsed_features['image'] = tf.identity(image, name='image')
         # One-hot encode each attribute
         if self.one_hot_attributes:
@@ -204,8 +193,5 @@ class CartoonSetLoader():
                                     ('hair_color', 10)]:
                 parsed_features[key] = tf.one_hot(parsed_features[key], num_values, axis=-1, name='one_hot_%s' % key)
         # Return
-        if self.verbose:
-            print('\u001b[36mOutputs:\u001b[0m')
-            print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, parsed_features[key]) 
-                            for key in sorted(parsed_features.keys())))
+        if self.verbose: print_records(parsed_features)
         return parsed_features

@@ -8,8 +8,9 @@ import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg
-from .tfrecords_utils import *
 import tensorflow as tf
+
+from .tfrecords_utils import *
 
 
 def load_bounding_boxes(file_path):
@@ -121,8 +122,8 @@ class CelebaLoader():
     
     def __init__(self,
                  save_image_in_records=False, 
-                 data_dir='',
-                 resize=None,
+                 image_dir='',
+                 image_size=None,
                  verbose=False):
         """Init a Loader object.
         
@@ -136,8 +137,8 @@ class CelebaLoader():
             `resize` (int): If given, resize the image to the given size
         """
         self.save_image_in_records = save_image_in_records
-        self.data_dir = data_dir
-        self.image_resize = resize
+        self.image_dir = image_dir
+        self.image_size = image_size
         self.verbose = verbose
     
     def parsing_fn(self, example_proto):
@@ -151,28 +152,19 @@ class CelebaLoader():
                     'width': tf.FixedLenFeature((), tf.int64, default_value=tf.constant(-1, dtype=tf.int64))
                    }     
         parsed_features = tf.parse_single_example(example_proto, features)   
-        # Load image
+        # Load image        
         if self.save_image_in_records: 
-            image = tf.decode_raw(parsed_features['image'], tf.uint8)
             shape = tf.stack([parsed_features['width'], parsed_features['height'], 3], axis=0)
-            image = tf.reshape(image, shape)
+            image = decode_raw_image(parsed_features['image'], shape, image_size=self.image_size)
         else:
             filename = tf.decode_base64(parsed_features['image'])
             parsed_features['image_path'] = tf.identity(filename, name='image_path')
-            image = tf.read_file(self.data_dir + filename)
-            image = tf.image.decode_jpeg(image, channels=3)
-        image = tf.image.convert_image_dtype(image, tf.float32)
-        # Resize image
-        if self.image_resize is not None:
-            image = tf.image.resize_images(image, (self.image_resize, self.image_resize))  
+            image = decode_relative_image(filename, self.image_dir, image_size=self.image_size)
         parsed_features['image'] = tf.identity(image, name='image')
         # Attributes to Boolean
         parsed_features['attributes'] = tf.greater(parsed_features['attributes'], 0., name='attributes')
         # Return
         del parsed_features['height']
         del parsed_features['width']
-        if self.verbose:
-            print('\u001b[36mOutputs:\u001b[0m')
-            print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, parsed_features[key]) 
-                            for key in sorted(parsed_features.keys())))
+        if self.verbose: print_records(parsed_features)
         return parsed_features

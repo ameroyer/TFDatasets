@@ -17,37 +17,22 @@ class VisdaClassificationConverter(Converter):
     def __init__(self, data_dir):
         """Initialize the object for the VisDA dataset in `data_dir`"""
         self.data_dir = data_dir
-        # train
-        self.train_data = None
-        lst = os.path.join(data_dir, 'train', 'image_list.txt')
-        if os.path.exists(lst):
-            with open(lst, 'r') as f:
-                self.train_data = [(os.path.join('train', items[0]), int(items[1]))
-                                   for line in f.read().splitlines() for items in [line.split()]]
-        # validation
-        self.val_data = None
-        lst = os.path.join(data_dir, 'validation', 'image_list.txt')
-        if os.path.exists(lst):
-            with open(lst, 'r') as f:
-                self.val_data = [(os.path.join('validation', items[0]), int(items[1]))
-                                  for line in f.read().splitlines() for items in [line.split()]]
-            print('Warning: No test data found')
-        # test
-        self.test_data = None
-        lst = os.path.join(data_dir, 'test', 'image_list.txt')
-        if os.path.exists(lst):
-            with open(lst, 'r') as f:
-                self.test_data = [(os.path.join('test', line),)  for line in f.read().splitlines()]
-        else:
-            print('Warning: No test data found')
+        self.data = []
+        for name, key in [('train', 'train'), ('val', 'validation'), ('test', 'test')]:
+            lst = os.path.join(data_dir, key, 'image_list.txt')
+            if os.path.exists(lst):
+                with open(lst, 'r') as f:
+                    data = [(os.path.join(key, items[0]), int(items[1])) if len(items) > 1 else (os.path.join(name, line),)
+                            for line in f.read().splitlines() for items in [line.split()]]
+                self.data.append((name, data))
+            else:
+                print('Warning: No %s data found' % name)
 
     def convert(self,
                 tfrecords_path, 
                 save_image_in_records=False):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
-        for name, split in zip(['train', 'val', 'test'], [self.train_data, self.val_data, self.test_data]):    
-            if split is None: 
-                continue
+        for name, split in self.data:    
             writer_path = '%s_%s' % (tfrecords_path, name)
             writer = tf.python_io.TFRecordWriter(writer_path)
             # For each dir
@@ -59,7 +44,7 @@ class VisdaClassificationConverter(Converter):
                 image_path = aux[0]
                 if save_image_in_records:
                     img = mpimg.imread(os.path.join(self.data_dir, image_path))
-                    if name == 'train':
+                    if name == 'train': # synthetic
                         img = img * 255.
                     feature['image'] = bytes_feature([img.astype(np.uint8).tostring()])
                     feature['width'] = int64_feature([img.shape[0]])
@@ -83,8 +68,8 @@ class VisdaClassificationLoader():
     
     def __init__(self,
                  save_image_in_records=False, 
-                 data_dir='',
-                 resize=None,
+                 image_dir='',
+                 image_size=None,
                  verbose=False):
         """Init a Loader object.
         
@@ -95,8 +80,8 @@ class VisdaClassificationLoader():
             `resize` (int): If given, resize the image to the given size
         """
         self.save_image_in_records = save_image_in_records
-        self.data_dir = data_dir
-        self.image_resize = resize
+        self.image_dir = image_dir
+        self.image_size = image_resize
         self.verbose = verbose
     
     def parsing_fn(self, example_proto):
@@ -110,26 +95,17 @@ class VisdaClassificationLoader():
         parsed_features = tf.parse_single_example(example_proto, features)   
         # Load image
         if self.save_image_in_records: 
-            image = tf.decode_raw(parsed_features['image'], tf.uint8)
             shape = tf.stack([parsed_features['width'], parsed_features['height'], 3], axis=0)
-            image = tf.reshape(image, shape)
+            image = decode_raw_image(parsed_features['image'], shape, image_size=self.image_size)
         else:
             filename = tf.decode_base64(parsed_features['image'])
             parsed_features['image_path'] = tf.identity(filename, name='image_path')
-            image = tf.read_file(self.data_dir + filename)
-            image = tf.image.decode_jpeg(image, channels=3)
-        image = tf.image.convert_image_dtype(image, tf.float32)
-        # Resize image
-        if self.image_resize is not None:
-            image = tf.image.resize_images(image, (self.image_resize, self.image_resize))  
+            image = decode_relative_image(filename, self.image_dir, image_size=self.image_size)
         parsed_features['image'] = tf.identity(image, name='image')
         # Class
         parsed_features['class'] = tf.to_int32(parsed_features['class'], name='class')
         # Return
         del parsed_features['height']
         del parsed_features['width']
-        if self.verbose:
-            print('\u001b[36mOutputs:\u001b[0m')
-            print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, parsed_features[key]) 
-                            for key in sorted(parsed_features.keys())))
+        if self.verbose: print_records(parsed_features)
         return parsed_features
