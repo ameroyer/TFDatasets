@@ -8,7 +8,7 @@ import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg
-from .tfrecords_utils import Converter, _bytes_feature, _floats_feature, _int64_feature 
+from .tfrecords_utils import *
 import tensorflow as tf
 
 
@@ -76,19 +76,19 @@ class CartoonSetConverter(Converter):
                     if save_image_in_records:
                         img, bbox = get_image_alpha_crop(full_image_path)
                         img =(img[:, :, :3] * 255.).astype(np.uint8)
-                        feature['image'] = _bytes_feature([img.tostring()])
+                        feature['image'] = bytes_feature([img.tostring()])
                     else:
                         _, bbox = get_image_alpha_crop(full_image_path)
-                        feature['image'] = _bytes_feature([
+                        feature['image'] = bytes_feature([
                                     base64.b64encode(os.path.join(folder, image_path).encode('utf-8'))])
                     # Bounding Box
-                    feature['bounding_box'] = _floats_feature(bbox.flatten())
+                    feature['bounding_box'] = floats_feature(bbox.flatten())
                     # Attributes
                     csv_file = os.path.join(self.data_dir, folder, '%s.csv' % image_path.rsplit('.', 1)[0])
                     with open(csv_file, 'r') as f:
                         reader = csv.reader(f)
                         for row in reader:
-                            feature[row[0]] = _int64_feature([int(row[1])])
+                            feature[row[0]] = int64_feature([int(row[1])])
                     # Write
                     example = tf.train.Example(features=tf.train.Features(feature=feature))
                     writer.write(example.SerializeToString())

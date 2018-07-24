@@ -8,7 +8,7 @@ import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg
-from .tfrecords_utils import Converter, _bytes_feature, _floats_feature, _int64_feature 
+from .tfrecords_utils import *
 import tensorflow as tf
 
 
@@ -61,14 +61,14 @@ class VisdaClassificationConverter(Converter):
                     img = mpimg.imread(os.path.join(self.data_dir, image_path))
                     if name == 'train':
                         img = img * 255.
-                    feature['image'] = _bytes_feature([img.astype(np.uint8).tostring()])
-                    feature['width'] = _int64_feature([img.shape[0]])
-                    feature['height'] = _int64_feature([img.shape[1]])
+                    feature['image'] = bytes_feature([img.astype(np.uint8).tostring()])
+                    feature['width'] = int64_feature([img.shape[0]])
+                    feature['height'] = int64_feature([img.shape[1]])
                 else:
-                    feature['image'] = _bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
+                    feature['image'] = bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
                 # Class
                 if len(aux) > 1:
-                    feature['class'] = _int64_feature([aux[1]])
+                    feature['class'] = int64_feature([aux[1]])
                 # Write
                 example = tf.train.Example(features=tf.train.Features(feature=feature))
                 writer.write(example.SerializeToString())

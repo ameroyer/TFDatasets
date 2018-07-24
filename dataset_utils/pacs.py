@@ -8,7 +8,7 @@ import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg
-from .tfrecords_utils import Converter, _bytes_feature, _floats_feature, _int64_feature 
+from .tfrecords_utils import *
 import tensorflow as tf
 
 
@@ -99,12 +99,12 @@ class PACSConverter(Converter):
                             if style_names[s] == 'sketch':
                                 img = img * 255.
                                 img = img[:, :, :3]
-                            feature['image'] = _bytes_feature([img.astype(np.uint8).tostring()])
+                            feature['image'] = bytes_feature([img.astype(np.uint8).tostring()])
                         else:
-                            feature['image'] = _bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
+                            feature['image'] = bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
                         # Class
-                        feature['class_style'] = _int64_feature([s])
-                        feature['class_content'] = _int64_feature([c])
+                        feature['class_style'] = int64_feature([s])
+                        feature['class_content'] = int64_feature([c])
                         # Write
                         example = tf.train.Example(features=tf.train.Features(feature=feature))
                         writer.write(example.SerializeToString())

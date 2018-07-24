@@ -6,7 +6,7 @@ from __future__ import print_function
 import os
 import numpy as np
 from matplotlib import image as mpimg
-from .tfrecords_utils import Converter, _bytes_feature, _floats_feature, _int64_feature 
+from .tfrecords_utils import * 
 import tensorflow as tf
 
 
@@ -60,9 +60,9 @@ class MNISTMConverter(Converter):
                 class_id = labels[index]
                 # write
                 example = tf.train.Example(features=tf.train.Features(feature={
-                    'class': _int64_feature([class_id]),
-                    'image': _bytes_feature([img.tostring()]),
-                    'id': _int64_feature([index])}))
+                    'class': int64_feature([class_id]),
+                    'image': bytes_feature([img.tostring()]),
+                    'id': int64_feature([index])}))
                 writer.write(example.SerializeToString())
             writer.close()
             print('\nWrote %s in file %s' % (name, writer_path))

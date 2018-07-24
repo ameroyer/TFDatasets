@@ -8,7 +8,7 @@ import csv
 import os
 import numpy as np
 from matplotlib import image as mpimg
-from .tfrecords_utils import Converter, _bytes_feature, _floats_feature, _int64_feature 
+from .tfrecords_utils import *
 import tensorflow as tf
 
 
@@ -88,20 +88,20 @@ class CelebaConverter(Converter):
                 img = mpimg.imread(os.path.join(self.data_dir, image_path))
                 height, width = img.shape[:2]
                 if save_image_in_records:
-                    feature['image'] = _bytes_feature([img.astype(np.uint8).tostring()])
-                    feature['width'] = _int64_feature([img.shape[0]])
-                    feature['height'] = _int64_feature([img.shape[1]])
+                    feature['image'] = bytes_feature([img.astype(np.uint8).tostring()])
+                    feature['width'] = int64_feature([img.shape[0]])
+                    feature['height'] = int64_feature([img.shape[1]])
                 else:
-                    feature['image'] = _bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
+                    feature['image'] = bytes_feature([base64.b64encode(image_path.encode('utf-8'))])
                 # Bounding Box (in [0, 1])
                 if self.bounding_boxes is not None:
                     bounding_box = self.bounding_boxes[path] / np.array([width, height, width, height])
-                    feature['bounding_box'] = _floats_feature(bounding_box)
+                    feature['bounding_box'] = floats_feature(bounding_box)
                 # Attributes (in {-1, 1})
-                feature['attributes'] = _floats_feature(self.attributes[path])
+                feature['attributes'] = floats_feature(self.attributes[path])
                 # Landmarks (in [0, 1])
                 landmarks = self.landmarks[path] / np.array([width, height])
-                feature['landmarks'] = _floats_feature(landmarks.flatten())
+                feature['landmarks'] = floats_feature(landmarks.flatten())
                 # Write
                 example = tf.train.Example(features=tf.train.Features(feature=feature))
                 writer.write(example.SerializeToString())
