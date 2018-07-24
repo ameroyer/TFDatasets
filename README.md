@@ -6,8 +6,7 @@
 
 # TFDatasets
 
-`TFDatasets` is a collection of scripts to preprocess various Computer Vision datasets and convert them to `TFRecords` for easy integration in the tf.data.Dataset Pipeline.
-Also show small examples of how to easily integrate them in the `tf.data.Dataset` pipeline.
+`TFDatasets` is a collection of scripts to preprocess various Computer Vision datasets and convert them to `TFRecords` for easy integration in the `tf.data.Dataset` pipeline.
 
 The notebook `load_datasets.ipynb` displays examples of writing and parsing TFRecords for each dataset. 
 
