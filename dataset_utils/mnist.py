@@ -7,6 +7,7 @@ import codecs
 import os
 import numpy as np
 import tensorflow as tf
+
 from .tfrecords_utils import * 
 
 
@@ -24,7 +25,7 @@ class MNISTConverter(Converter):
             images = os.path.join(data_dir, '%s-images.idx3-ubyte' % key)
             labels = os.path.join(data_dir, '%s-labels.idx1-ubyte' % key)
             if not os.path.isfile(images) or not os.path.isfile(labels):             
-                print('Warning: Missing training data')
+                print('Warning: Missing %s data' % name)
             else:
                 self.data.append((name, images, labels))
 
@@ -72,9 +73,9 @@ class MNISTConverter(Converter):
             
 class MNISTLoader():
     
-    def __init__(self, resize=None, verbose=False):
-        """Init a Loader object. Loaded images will be resized to size `resize`."""
-        self.image_resize = resize
+    def __init__(self, image_size=None, verbose=False):
+        """Init a Loader object. Loaded images will be resized to size `image_size`."""
+        self.image_size = image_size
         self.verbose = verbose
     
     def parsing_fn(self, example_proto):
@@ -85,7 +86,7 @@ class MNISTLoader():
                     'id': tf.FixedLenFeature((), tf.int64)}      
         parsed_features = tf.parse_single_example(example_proto, features)  
         # Parse
-        image = decode_raw_image(parsed_features['image'], (28, 28, 1), image_size=None)
+        image = decode_raw_image(parsed_features['image'], (28, 28, 1), image_size=self.image_size)
         image = tf.identity(image, name='image')
         class_id = tf.to_int32(parsed_features['class'], name='class_label')
         index = tf.to_int32(parsed_features['id'], name='index')

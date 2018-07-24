@@ -6,8 +6,9 @@ from __future__ import print_function
 import os
 import numpy as np
 from matplotlib import image as mpimg
-from .tfrecords_utils import * 
 import tensorflow as tf
+
+from .tfrecords_utils import * 
 
 
 class MNISTMConverter(Converter):
@@ -16,49 +17,32 @@ class MNISTMConverter(Converter):
         """Initialize the object for the MNIST-M dataset in `data_dir`"""
         print('Loading original MNIST-M data from', data_dir)
         self.data_dir = data_dir
-        train_split = os.path.join(data_dir, 'mnist_m_train_labels.txt')
-        if not os.path.isfile(train_split):             
-            print('Warning: Missing training data')
-            self.train_images, self.train_labels = None, None
-        else:
-            with open(train_split, 'r') as f:
-                self.train_images, self.train_labels = zip(*[line.split() for line in f.read().splitlines()])
-                self.train_labels = list(map(int, self.train_labels))
-        test_split = os.path.join(data_dir, 'mnist_m_test_labels.txt')
-        if not os.path.isfile(test_split):             
-            print('Warning: Missing test data')
-            self.test_images, self.test_labels = None, None
-        else:
-            with open(test_split, 'r') as f:
-                self.test_images, self.test_labels = zip(*[line.split() for line in f.read().splitlines()])
-                self.test_labels = list(map(int, self.test_labels))
+        self.data = []
+        for name in ['train', 'test']:
+            split = os.path.join(data_dir, 'mnist_m_%s_labels.txt' % name)
+            image_dir = os.path.join(self.data_dir, 'mnist_m_%s' % name)
+            if not os.path.isfile(split):             
+                print('Warning: Missing %s data' % name)
+            elif not os.path.exists(image_dir):
+                print('Warning: Missing %s image directory' % name)
+            else:
+                with open(split, 'r') as f:
+                    images, labels = zip(*[line.split() for line in f.read().splitlines()])
+                    labels = list(map(int, labels))
+                    self.data.append((name, image_dir, images, labels))
 
     def convert(self, tfrecords_path, sort=False):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
-        for name, images, labels in [['train', self.train_images, self.train_labels], 
-                                     ['test', self.test_images, self.test_labels]]: 
-            if images is None or labels is None:   
-                continue
-            image_dir = os.path.join(self.data_dir, 'mnist_m_%s' % name)
-            if not os.path.exists(image_dir):
-                print('Warning: Missing %s image directory' % name)
-                continue
-            # Sort labels
+        for name, image_dir, images, labels in self.data:
             num_items = len(labels)
-            if sort:
-                labels_order = np.argsort(labels, axis=0)
-            else:
-                labels_order = range(num_items)
-            # Read images
             writer_path = '%s_%s' % (tfrecords_path, name)
             writer = tf.python_io.TFRecordWriter(writer_path)
+            labels_order = np.argsort(labels, axis=0) if sort else range(num_items)
             for x, index in enumerate(labels_order):
                 print('\rLoad %s: %d / %d' % (name, x + 1, num_items), end='')
-                # load
                 img = np.ceil(255. * mpimg.imread(os.path.join(image_dir, images[index])))
                 img = img.astype(np.uint8)
                 class_id = labels[index]
-                # write
                 example = tf.train.Example(features=tf.train.Features(feature={
                     'class': int64_feature([class_id]),
                     'image': bytes_feature([img.tostring()]),
@@ -71,9 +55,9 @@ class MNISTMConverter(Converter):
             
 class MNISTMLoader():
     
-    def __init__(self, resize=None, verbose=False):
+    def __init__(self, image_size=None, verbose=False):
         """Init a Loader object. Loaded images will be resized to size `resize`."""
-        self.image_resize = resize
+        self.image_size = image_size
         self.verbose = verbose
     
     def parsing_fn(self, example_proto):
@@ -83,16 +67,11 @@ class MNISTMLoader():
                     'image': tf.FixedLenFeature((), tf.string),
                     'id': tf.FixedLenFeature((), tf.int64)}      
         parsed_features = tf.parse_single_example(example_proto, features)  
-        image = tf.decode_raw(parsed_features['image'], tf.uint8)
-        image = tf.reshape(image, (32, 32, 3))
-        image = tf.image.convert_image_dtype(image, tf.float32)
-        if self.image_resize is not None:
-            image = tf.image.resize_images(image, (self.image_resize, self.image_resize))
+        image = decode_raw_image(parsed_features['image'], (32, 32, 3), image_size=self.image_size)
         image = tf.identity(image, name='image')
         class_id = tf.to_int32(parsed_features['class'], name='class_label')
         index = tf.to_int32(parsed_features['id'], name='index')
-        output = {'image': image, 'class': class_id, 'id': index}
-        if self.verbose:
-            print('\u001b[36mOutputs:\u001b[0m')
-            print('\n'.join('   \u001b[46m%s\u001b[0m: %s' % (key, output[key]) for key in sorted(output.keys())))
-        return output
+        # Return
+        records_dict = {'image': image, 'class': class_id, 'id': index}
+        if self.verbose: print_records(records_dict)
+        return records_dict

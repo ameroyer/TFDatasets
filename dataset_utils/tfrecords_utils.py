@@ -14,7 +14,7 @@ def int64_feature(value):
 
 ### Convenience function for creating a basic tf.data.Dataset
 def get_tf_dataset(path_to_tfrecords, parsing_fn, shuffle_buffer=1, batch_size=8):
-    """Create a basic tensorflow Dataset object from a TFRecords.
+    """Create a basic one-shot tensorflow Dataset object from a TFRecords.
     
     Args:
         path_to_tfrecords: Path to the TFrecords
@@ -22,17 +22,25 @@ def get_tf_dataset(path_to_tfrecords, parsing_fn, shuffle_buffer=1, batch_size=8
         shuffle_buffer: Shuffle buffer size to randomize the dataset
         batch_size: Batch size
     """
-    print('Creating dataset with batch_size %d and shuffle buffer %d' % (
+    print('[dataset] batch_size = %d, shuffle buffer = %d' % (
             batch_size, shuffle_buffer))
     data = tf.data.TFRecordDataset(path_to_tfrecords)
     data = data.shuffle(shuffle_buffer)
     data = data.map(parsing_fn)
-    data = data.repeat()
     data = data.batch(batch_size)
     iterator = data.make_one_shot_iterator()
     in_ = iterator.get_next()
     return in_
 
+
+def get_one_batch(tfrecords_path, parsing_fn, batch_size=8, shuffle_buffer=1):
+    """Return one batch in the created Tensorflow dataset"""
+    with tf.Graph().as_default():
+        data = get_tf_dataset(tfrecords_path, parsing_fn, batch_size=batch_size, shuffle_buffer=shuffle_buffer)
+        with tf.Session() as sess:
+            data_ = sess.run(data)
+            return data_
+        
 
 def decode_raw_image(feature, shape, image_size=None):
     """Decode raw image
