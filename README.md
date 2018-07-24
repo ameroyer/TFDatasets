@@ -35,6 +35,7 @@ The loader simply builds a proper parsing function to extract data from the TFRe
 | ------- | ---- | ------ | --- |
 | CelebA | [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) | ![celeba_thumb](images/celeba.png) | image, bounding-box, attributes, landmarks |
 | CartoonSet | [CartoonSet](https://google.github.io/cartoonset/) | ![cartoonset_thumb](images/cartoonset.png) | image, bounding-box, attributes |
+| Fashion MNIST| [Fashion MNIST](https://github.com/zalandoresearch/fashion-mnist) | ![fashion_mnist_thumb](images/fashion_mnist.png) | image, class, index|
 | MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) | image, digit-class, index |
 | MNIST-M | [MNIST-M](http://yaroslav.ganin.net/) | ![mnistm_thumb](images/mnistm.png) | image, digit-class, index |
 | M2NIST | [M2NIST](https://www.kaggle.com/farhanhubble/multimnistm2nist/home) | ![m2nist_thumb](images/m2nist.png) | image, segmentation-mask, index |
