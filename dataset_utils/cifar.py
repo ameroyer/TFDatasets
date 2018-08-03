@@ -43,7 +43,7 @@ class CIFAR10Converter(Converter):
         # Labels
         self.label_names = unpickle(os.path.join(self.data_dir, 'batches.meta'))[b'label_names']
 
-    def convert(self, tfrecords_path, save_image_in_records=False):
+    def convert(self, tfrecords_path):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
         for name, data in self.data:
             writer_path = '%s_%s' % (tfrecords_path, name)
@@ -81,7 +81,7 @@ class CIFAR100Converter(CIFAR10Converter):
         # Labels
         self.label_names = unpickle(os.path.join(self.data_dir, 'meta'))[b'coarse_label_names']
 
-    def convert(self, tfrecords_path, save_image_in_records=False):
+    def convert(self, tfrecords_path):
         """Convert the dataset in TFRecords saved in the given `tfrecords_path`"""
         for name, data in self.data:
             writer_path = '%s_%s' % (tfrecords_path, name)
