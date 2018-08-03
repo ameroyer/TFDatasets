@@ -6,7 +6,7 @@
 
 # TFDatasets
 
-`TFDatasets` is a collection of scripts to preprocess various Computer Vision datasets and convert them to `TFRecords` for easy integration in the `tf.data.Dataset` pipeline.
+`TFDatasets` is a collection of scripts to preprocess various Computer Vision datasets and convert them to `TFRecords` for easy integration in the `tf.data.Dataset` pipeline. The code was designed with Python 3+ and tensorflow 1.4+ in mind.
 
 The notebook `load_datasets.ipynb` displays examples of writing and parsing TFRecords for each dataset. See the last section of this readme for an index of available datasets.
 
@@ -14,21 +14,6 @@ The notebook `preprocess.ipynb` displays of example of various preprocessing uti
 
 ---
 
-### General API
-**Note:** this code was tested with Python 3+ and tensorflow 1.4+
-
-The specific module for any given dataset `data` is contained in `dataset_utils.data.py`. It contains a converter, `DataConverter` and a loader `DataLoader`.
-
-
-
-#### Converter
-The converter contains one method, `convert` that generates the TFRecords in the given `target_path`. Additionally, this method takes as keyword argument `sort` (defaults to `False`); If this is `True`, the entries in the TFRecords will be sorted by class labels when possible (e.g. classification task). Note that this means the `shuffle_buffer` size should be at least equal to the number of samples in the dataset for proper shuffling (hence it is not optimal for large datasets), but this can be a convenient feature to quickly filter/sample the dataset based on classes.
-
-
-#### Loader
-The loader simply builds a proper parsing function to extract data from the TFRecords and format it correctly. Such a function can then be passed to the `tf.data.Dataset` API map function.
-
----
 
 ### Table of Contents
 
@@ -46,3 +31,19 @@ The loader simply builds a proper parsing function to extract data from the TFRe
 | SVHN | [SVHN](http://ufldl.stanford.edu/housenumbers/) | ![svhn_thumb](images/svhn.png) | image, digit-class, index |
 | Tiny ImageNet | [Tiny ImageNet](https://tiny-imagenet.herokuapp.com/) | ![tiny_imagenet_thumb](images/tiny_imagenet.png) | image, class, class-name, bounding-box |
 | VisDA | [VisDA](http://ai.bu.edu/visda-2017/) | ![visda_thumb](images/visda.png) | image, class |
+
+
+---
+
+### Notes on the API
+
+The specific module for any given dataset `data` is contained in `dataset_utils.data.py`. It contains a converter, `DataConverter` and a loader `DataLoader`.
+
+
+
+#### Converter
+The converter contains one method, `convert` that generates the TFRecords in the given `target_path`. Additionally, this method takes as keyword argument `sort` (defaults to `False`); If this is `True`, the entries in the TFRecords will be sorted by class labels when possible (e.g. classification task). Note that this means the `shuffle_buffer` size should be at least equal to the number of samples in the dataset for proper shuffling (hence it is not optimal for large datasets), but this can be a convenient feature to quickly filter/sample the dataset based on classes.
+
+
+#### Loader
+The loader simply builds a proper parsing function to extract data from the TFRecords and format it correctly. Such a function can then be passed to the `tf.data.Dataset` API map function.
