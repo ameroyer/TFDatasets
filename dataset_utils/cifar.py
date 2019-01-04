@@ -18,14 +18,14 @@ def unpickle(file_path):
 
 
 """Define features to be stored in the TFRecords"""
-CIFAR10Features = Features([('image', FeatureType.BYTES, FeatureLength.FIXED, (),),
-                            ('class', FeatureType.INT, FeatureLength.FIXED, (),),
-                            ('class_str', FeatureType.BYTES, FeatureLength.FIXED, (),)])
+CIFAR10Features = Features([('image', FeatureType.BYTES, FeatureLength.FIXED, (), None),
+                            ('class', FeatureType.INT, FeatureLength.FIXED, (), None),
+                            ('class_str', FeatureType.BYTES, FeatureLength.FIXED, (), None)])
 
-CIFAR100Features = Features([('image', FeatureType.BYTES, FeatureLength.FIXED, (),),
-                             ('class', FeatureType.INT, FeatureLength.FIXED, (),),
-                             ('coarse_class', FeatureType.INT, FeatureLength.FIXED, (),),
-                             ('coarse_class_str', FeatureType.BYTES, FeatureLength.FIXED, (),)])
+CIFAR100Features = Features([('image', FeatureType.BYTES, FeatureLength.FIXED, (), None),
+                             ('class', FeatureType.INT, FeatureLength.FIXED, (), None),
+                             ('coarse_class', FeatureType.INT, FeatureLength.FIXED, (), None),
+                             ('coarse_class_str', FeatureType.BYTES, FeatureLength.FIXED, (), None)])
 
 
 class CIFAR10Converter(Converter):

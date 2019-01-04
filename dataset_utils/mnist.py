@@ -15,9 +15,9 @@ def read_integer(bytel):
     return int('0x' + ''.join('{:02x}'.format(x) for x in bytel), 0)
 
 """Define features to be stored in the TFRecords"""
-MNISTFeatures = Features([('class', FeatureType.INT, FeatureLength.FIXED, (),),
-                          ('image', FeatureType.BYTES, FeatureLength.FIXED, (),),
-                          ('id', FeatureType.INT, FeatureLength.FIXED, (),)])
+MNISTFeatures = Features([('class', FeatureType.INT, FeatureLength.FIXED, (), None),
+                          ('image', FeatureType.BYTES, FeatureLength.FIXED, (), None),
+                          ('id', FeatureType.INT, FeatureLength.FIXED, (), None)])
 
 
 class MNISTConverter(Converter):
