@@ -54,5 +54,5 @@ class MNISTMConverter(Converter):
             print()
 
 
-MNISTMLoader = MNISTLoader
-MNISTMLoader.shape = (32, 32, 3)
+class MNISTMLoader(MNISTLoader):
+    shape = (32, 32, 3)

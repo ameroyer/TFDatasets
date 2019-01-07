@@ -51,5 +51,5 @@ class SVHNConverter(Converter):
             print()
             
 
-SVHNLoader = MNISTLoader
-SVHNLoader.shape = (32, 32, 3)
+class SVHNLoader(MNISTLoader):
+    shape = (32, 32, 3)
