@@ -99,8 +99,6 @@ class CartoonSetConverter(Converter):
                 image_files = [x for x in os.listdir(os.path.join(self.data_dir, folder)) if x.endswith('.png')]
                 for j, image_path in enumerate(image_files):
                     print('\r  folder %d/%d: image %d/%d' % (i + 1, len(split), j + 1, len(image_files)), end='')
-                    feature = {}
-
                     # Image
                     full_image_path = os.path.join(self.data_dir, folder, image_path)
                     if save_image_in_records:
@@ -116,6 +114,7 @@ class CartoonSetConverter(Converter):
                         reader = csv.reader(f)
                         attributes = {row[0]: [int(row[1])] for row in reader}
                         attributes = [attributes[k] for k in sorted(attributes.keys())]
+                        
                     # Write
                     writer.write(self.create_example_proto([img],
                                                            bbox.flatten(),

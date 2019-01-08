@@ -98,8 +98,6 @@ class CelebaConverter(Converter):
             print('\nLoad', name)
             for i, path in enumerate(split):
                 print('\rImage %d/%d' % (i + 1, len(split)), end='')
-                feature = {}
-
                 # Image
                 image_path = os.path.join(self.image_dir, path)
                 img = mpimg.imread(os.path.join(self.data_dir, image_path))
