@@ -14,9 +14,9 @@ from .tfrecords_utils import *
 """Define features to be stored in the TFRecords"""
 ACWSFeatures = Features([
     ('image', FeatureType.BYTES, FeatureLength.FIXED, (), None),
-    ('class', FeatureType.INT, FeatureLength.FIXED, (), None),
     ('width', FeatureType.INT, FeatureLength.FIXED, (), tf.constant(-1, dtype=tf.int64)),
     ('height', FeatureType.INT, FeatureLength.FIXED, (), tf.constant(-1, dtype=tf.int64)),
+    ('class', FeatureType.INT, FeatureLength.FIXED, (), None),
                         ])
 
 class ACWSConverter(Converter):
@@ -50,17 +50,16 @@ class ACWSConverter(Converter):
                 image_path = '%s.jpg' % path
                 if save_image_in_records:
                     img = mpimg.imread(os.path.join(self.image_dir, image_path))
-                    height, width = img.shape[:2]
+                    height = [img.shape[0]]
+                    width = [img.shape[1]]
                     img = img.astype(np.uint8).tostring()
                 else:
                     img = base64.b64encode(image_path.encode('utf-8'))
+                    height, width = None, None
                 # Class
                 class_id = int(path.split('/', 1)[0])
                 # Write
-                writer.write(self.create_example_proto([img],
-                                                       [class_id],
-                                                       [height] if save_image_in_records else None,
-                                                       [width] if save_image_in_records else None))
+                writer.write(self.create_example_proto([img], height, width, [class_id]))
             writer.close()
             print('\nWrote %s in file %s (%.2fMB)' % (
                 name, writer_path, os.path.getsize(writer_path) / 1e6))
