@@ -20,8 +20,8 @@ The notebook `preprocess.ipynb` displays of example of various preprocessing uti
 | Dataset | Link | Example | TFRecords contents |
 | :-----: | :--: | :-----: | :----------------: |
 | ACwS | [Apparel Classification with Style](http://www.vision.ee.ethz.ch/~lbossard/projects/accv12/index.html) | ![acws_thumb](images/acws.png) | image, class |
-| CelebA | [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) | ![celeba_thumb](images/celeba.png) | image, bounding-box, attributes, landmarks |
 | CartoonSet | [CartoonSet](https://google.github.io/cartoonset/) | ![cartoonset_thumb](images/cartoonset.png) | image, bounding-box, attributes |
+| CelebA | [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) | ![celeba_thumb](images/celeba.png) | image, bounding-box, attributes, landmarks |
 | CIFAR-10(0) | [CIFAR](https://www.cs.toronto.edu/~kriz/cifar.html) | ![cifar10_thumb](images/cifar10.png) | image, class, (coarse_class), (coarse_)class-name, |
 | Fashion MNIST| [Fashion MNIST](https://github.com/zalandoresearch/fashion-mnist) | ![fashion_mnist_thumb](images/fashion_mnist.png) | image, class, index|
 | MNIST | [MNIST](http://yann.lecun.com/exdb/mnist/) | ![mnist_thumb](images/mnist.png) | image, digit-class, index |
