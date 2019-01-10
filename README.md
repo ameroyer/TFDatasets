@@ -37,13 +37,28 @@ The notebook `preprocess.ipynb` displays of example of various preprocessing uti
 
 ### Notes on the API
 
-The specific module for any given dataset `data` is contained in `dataset_utils.data.py`. It contains a converter, `DataConverter` and a loader `DataLoader`.
+The module for a dataset `data` is contained in `dataset_utils.data.py`. It contains three main objects: a `Features` description, a `Converter` and a `Loader`.
+
+#### Features
+A `Features` object defines the content of a TFRecord example. It is initialized from a list of tuples, where each tuple represents a feature as:
+  * **name:** a name, which will be the corresponding feature key in the parsed dictionnary
+  * **type:** the type of the feature, one of int, float or bytes (see `tfrecords_utils.FeatureType`)
+  * **length:** whether the tuple should be of fixed or variable length (see `tfrecords_utils.FeatureLength`)
+  * **shape:** if the length is fixed, the shape of the feature, which is a nested list of integers.
+  * **default:** A default value for the Records when loading (or `None` if no missing data)
 
 
 
 #### Converter
-The converter contains one method, `convert` that generates the TFRecords in the given `target_path`. Additionally, this method takes as keyword argument `sort` (defaults to `False`); If this is `True`, the entries in the TFRecords will be sorted by class labels when possible (e.g. classification task). Note that this means the `shuffle_buffer` size should be at least equal to the number of samples in the dataset for proper shuffling (hence it is not optimal for large datasets), but this can be a convenient feature to quickly filter/sample the dataset based on classes.
+A converter object contains one main method, `convert` that generates the TFRecords.
+
+It generally takes as arguments
+  * **target_path**, the path where to solve the TFRecords to.
+  * **compression_type**, one of None, 'gzip' or 'zlib', that determines the compression option for the TFRecords. 
+  * **save_image_in_records**, a boolean which indicates whether to store the image directly in the TFRecords; if the images are large, it can be useful to compress the TFRecords using `compression_type`. Otherwise, if that argument is `False`, the function only stores the path to the image, which will then be loaded by the `tf.data.Dataset` object.
+  
+ Additionally, in some cases this method takes a keyword argument `sort`; If this is `True`, the entries in the TFRecords will be sorted in someway, e.g. by class labels. Note that this means the `shuffle_buffer` size should be at least equal to the number of samples in the dataset for proper shuffling (hence not optimal for large datasets), but it can be convenient to quickly filter/sample the dataset based on classes.
 
 
 #### Loader
-The loader simply builds a proper parsing function to extract data from the TFRecords and format it correctly. Such a function can then be passed to the `tf.data.Dataset` API map function.
+A `Loader` object simply builds a proper parsing function to extract data from the TFRecords and format it correctly. Such a function can then be passed to the `tf.data.Dataset` API `map` function to parse the TFRecords dataset.
