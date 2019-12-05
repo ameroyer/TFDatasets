@@ -1,7 +1,6 @@
 ![license](https://img.shields.io/github/license/ameroyer/TFDatasets.svg)
 ![GitHub repo size in bytes](https://img.shields.io/github/repo-size/ameroyer/TFDatasets.svg)
-![GitHub top language](https://img.shields.io/github/languages/top/ameroyer/TFDatasets.svg)
-![Maintenance](https://img.shields.io/maintenance/yes/2018.svg)
+![Maintenance](https://img.shields.io/maintenance/yes/2019.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ameroyer/TFDatasets.svg)
 
 # TFDatasets
